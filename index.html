@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 萌宠人格探险</title>
+    <style>
+        :root {
+            --primary-color: #FF9A9E; /* 糖果粉 */
+            --secondary-color: #FECFEF; /* 浅粉 */
+            --accent-color: #a18cd1; /* 梦幻紫 */
+            --text-color: #555;
+            --bg-gradient: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', '幼圆', 'Segoe UI', sans-serif; /* 尝试使用圆体字体 */
+            background-image: var(--bg-gradient);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* 漂浮的背景装饰 */
+        .bg-shape {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            z-index: -1;
+            animation: float 6s infinite ease-in-out;
+        }
+        .shape1 { width: 100px; height: 100px; top: 10%; left: 10%; animation-delay: 0s; }
+        .shape2 { width: 150px; height: 150px; bottom: 20%; right: 10%; animation-delay: 1s; }
+        .shape3 { width: 80px; height: 80px; bottom: 10%; left: 20%; animation-delay: 2s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* 主卡片容器 */
+        .card-container {
+            width: 90%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, height 0.3s ease;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 标题与文字 */
+        h1 {
+            color: #FF6B6B;
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        p {
+            font-size: 1rem;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        /* 按钮通用样式 */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(255, 154, 158, 0.6);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 选项按钮样式 */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #F0F0F0;
+            padding: 15px 20px;
+            border-radius: 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 1rem;
+            color: #666;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #FFF0F5;
+        }
+
+        /* 选中时的特效 */
+        .option-btn.selected {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: scale(0.98);
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 20px;
+            height: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #FF9A9E 0%, #FECFEF 100%);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        /* 页面切换动画 */
+        .fade-enter {
+            animation: fade-in 0.5s forwards;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 隐藏元素 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 结果页样式 */
+        .result-emoji {
+            font-size: 6rem;
+            display: block;
+            margin: 10px 0;
+            animation: pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .tag {
+            display: inline-block;
+            background: #eee;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            color: #888;
+        }
+
+        .result-desc {
+            background: #FFF8F0;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px dashed #FFE4C4;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- 背景装饰 -->
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+    <div class="bg-shape shape3"></div>
+
+    <div class="card-container">
+        <!-- 1. 开始封面 -->
+        <div id="start-screen" class="fade-enter">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🐾</div>
+            <h1>动物原型人格测试</h1>
+            <p>每个人的内心都住着一只小动物。<br>回答 6 个可爱的问题，<br>看看你的灵魂长什么样？</p>
+            <button class="btn" onclick="startQuiz()">✨ 开始探险 ✨</button>
+        </div>
+
+        <!-- 2. 答题界面 -->
+        <div id="quiz-screen" class="hidden">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="tag">第 <span id="current-num">1</span>/6 题</div>
+            <h2 id="question-text">题目加载中...</h2>
+            <div class="options-grid" id="options-container">
+                <!-- 选项将通过 JS 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 3. 结果界面 -->
+        <div id="result-screen" class="hidden">
+            <div class="result-emoji" id="result-icon">🦁</div>
+            <h1 id="result-title" style="margin-bottom: 5px;">狮子型</h1>
+            <p style="color: #aaa; font-size: 0.9rem;">你的灵魂动物</p>
+            
+            <div class="result-desc">
+                <p id="result-text">结果描述文案...</p>
+            </div>
+            
+            <button class="btn" onclick="location.reload()" style="background: #a18cd1;">🔄 再测一次</button>
+        </div>
+    </div>
+
+<script>
+    // 题库数据
+    const questions = [
+        {
+            q: "遇到了一座高耸入云的大山，你会？🏔️",
+            options: [
+                { text: "A. 直接冲鸭！我有信心爬上去", val: "A" },
+                { text: "B. 先拿出地图研究最佳路线", val: "B" },
+                { text: "C. 找找有没有缆车或者地道", val: "C" },
+                { text: "D. 找小伙伴一起互相搀扶着走", val: "D" }
+            ]
+        },
+        {
+            q: "在森林探险小队里，你觉得你是？🎒",
+            options: [
+                { text: "A. 举旗子带路的大队长", val: "A" },
+                { text: "B. 拿着指南针的军师", val: "B" },
+                { text: "C. 活跃气氛的开心果", val: "C" },
+                { text: "D. 默默背包的后勤部长", val: "D" }
+            ]
+        },
+        {
+            q: "终于放假啦！你最想去做什么？🎈",
+            options: [
+                { text: "A. 去游乐园玩过山车，刺激！", val: "A" },
+                { text: "B. 去书店或博物馆逛逛", val: "B" },
+                { text: "C. 叫上朋友去探店打卡", val: "C" },
+                { text: "D. 宅在家里睡大觉，舒服~", val: "D" }
+            ]
+        },
+        {
+            q: "突然下起了大暴雨，你会？☔",
+            options: [
+                { text: "A. 立刻冲进雨里找避难所", val: "A" },
+                { text: "B. 观察云层走向判断雨停时间", val: "B" },
+                { text: "C. 拿大树叶当伞，顺便玩水", val: "C" },
+                { text: "D. 不慌不忙，等雨停或等人送伞", val: "D" }
+            ]
+        },
+        {
+            q: "你觉得什么东西最珍贵？💎",
+            options: [
+                { text: "A. 胜利的奖杯与大家的掌声", val: "A" },
+                { text: "B. 脑袋里无穷无尽的知识", val: "B" },
+                { text: "C. 自由自在，无拘无束", val: "C" },
+                { text: "D. 和家人朋友在一起的温暖", val: "D" }
+            ]
+        },
+        {
+            q: "朋友们通常怎么夸你？💖",
+            options: [
+                { text: "A. 酷！霸气！有范儿！", val: "A" },
+                { text: "B. 聪明绝顶，什么都懂", val: "B" },
+                { text: "C. 有趣，和你在一起不无聊", val: "C" },
+                { text: "D. 温柔体贴，好脾气", val: "D" }
+            ]
+        }
+    ];
+
+    // 结果数据
+    const results = {
+        'A': {
+            icon: '🦁',
+            title: '霸气狮子王',
+            desc: '你是天生的王者，自带光环！你充满自信，喜欢掌控全局。面对困难时，你总是那个冲在最前面保护大家的人。你的魄力和决断力让人忍不住想追随你。'
+        },
+        'B': {
+            icon: '🦉',
+            title: '睿智猫头鹰',
+            desc: '你是森林里的智者，冷静又理性。你喜欢思考，做事井井有条，不会盲目行动。大家遇到难题时，第一个想到的就是来问你，因为你总能找到最完美的答案。'
+        },
+        'C': {
+            icon: '🦊',
+            title: '机灵小狐狸',
+            desc: '你是社交场上的明星，灵活又幽默！你的适应能力超强，总能想出各种鬼点子来解决问题。向往自由的你，是团队里的气氛组组长，有你在就绝对不会冷场。'
+        },
+        'D': {
+            icon: '🐬',
+            title: '治愈系海豚',
+            desc: '你是最温暖的存在，拥有治愈人心的力量。你非常在意别人的感受，追求和谐与和平。虽然你平时不爱出风头，但你是大家背后最坚实的依靠和情感港湾。'
+        }
+    };
+
+    // 状态变量
+    let currentStep = 0;
+    const scores = { A: 0, B: 0, C: 0, D: 0 };
+    let isTransitioning = false; // 防止重复点击
+
+    // 1. 开始测试
+    function startQuiz() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        document.getElementById('quiz-screen').classList.add('fade-enter');
+        renderQuestion();
+    }
+
+    // 2. 渲染题目
+    function renderQuestion() {
+        const qData = questions[currentStep];
+        
+        // 更新进度条
+        const progressPercent = ((currentStep) / questions.length) * 100;
+        document.getElementById('progress-bar').style.width = progressPercent + '%';
+        document.getElementById('current-num').innerText = currentStep + 1;
+
+        // 更新文本（带淡入动画）
+        const qText = document.getElementById('question-text');
+        const optContainer = document.getElementById('options-container');
+        
+        qText.innerText = qData.q;
+        optContainer.innerHTML = ''; // 清空旧选项
+
+        // 生成选项
+        qData.options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => handleOptionClick(btn, opt.val);
+            optContainer.appendChild(btn);
+        });
+
+        isTransitioning = false;
+    }
+
+    // 3. 处理点击
+    function handleOptionClick(btnElement, value) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        // 视觉反馈：选中状态
+        btnElement.classList.add('selected');
+        
+        // 记录分数
+        scores[value]++;
+
+        // 延迟跳转，给用户一点反应时间
+        setTimeout(() => {
+            currentStep++;
+            if (currentStep < questions.length) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }, 400); // 400毫秒后跳转
+    }
+
+    // 4. 显示结果
+    function showResult() {
+        // 计算最高分
+        let maxScore = 0;
+        let resultType = 'D'; // 默认兜底
+        
+        for (let type in scores) {
+            if (scores[type] > maxScore) {
+                maxScore = scores[type];
+                resultType = type;
+            }
+        }
+
+        // 填充数据
+        const resultData = results[resultType];
+        document.getElementById('result-icon').innerText = resultData.icon;
+        document.getElementById('result-title').innerText = resultData.title;
+        document.getElementById('result-text').innerText = resultData.desc;
+
+        // 进度条拉满
+        document.getElementById('progress-bar').style.width = '100%';
+
+        // 切换界面
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('result-screen').classList.add('fade-enter');
+    }
+
+</script>
+
+</body>
+</html>
